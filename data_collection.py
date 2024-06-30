@@ -10,7 +10,7 @@ from my_functions import *
 import keyboard
 
 # Define the actions (signs) that will be recorded and stored in the dataset
-actions = np.array(['a', 'b'])
+actions = np.array(['a', 'b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'])
 
 # Define the number of sequences and frames to be recorded for each action
 sequences = 30
@@ -43,13 +43,15 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.75, min_tracking_
                     break
                 _, image = cap.read()
 
+                
                 results = image_process(image, holistic)
-                draw_landmarks(image, results)
-
-                cv2.putText(image, 'Recroding data for the "{}". Sequence number {}.'.format(action, sequence),
+                writable_image = np.copy(image)
+                draw_landmarks(writable_image, results)
+                
+                cv2.putText(writable_image, 'Recroding data for the "{}". Sequence number {}.'.format(action, sequence),
                             (20,20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1, cv2.LINE_AA)
-                cv2.putText(image, 'Pause.', (20,400), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
-                cv2.putText(image, 'Press "Space" when you are ready.', (20,450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+                cv2.putText(writable_image, 'Pause.', (20,400), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
+                cv2.putText(writable_image, 'Press "Space" when you are ready.', (20,450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2, cv2.LINE_AA)
                 cv2.imshow('Camera', image)
                 cv2.waitKey(1)
                 
@@ -61,13 +63,14 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.75, min_tracking_
             _, image = cap.read()
             # Process the image and extract hand landmarks using the MediaPipe Holistic pipeline
             results = image_process(image, holistic)
+            writable_image = np.copy(image)
             # Draw the hand landmarks on the image
-            draw_landmarks(image, results)
+            draw_landmarks(writable_image, results)
 
             # Display text on the image indicating the action and sequence number being recorded
-            cv2.putText(image, 'Recroding data for the "{}". Sequence number {}.'.format(action, sequence),
+            cv2.putText(writable_image, 'Recroding data for the "{}". Sequence number {}.'.format(action, sequence),
                         (20,20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 1, cv2.LINE_AA)
-            cv2.imshow('Camera', image)
+            cv2.imshow('Camera', writable_image)
             cv2.waitKey(1)
 
         # Check if the 'Camera' window was closed and break the loop

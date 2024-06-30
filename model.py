@@ -4,12 +4,13 @@
 import numpy as np
 import os
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical
+import tensorflow as tf
+# from tensorflow.keras.utils import to_categorical
 from itertools import product
 from sklearn import metrics
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+# from tensorflow.keras.models import Sequential
+# from tensorflow.keras.layers import LSTM, Dense
 
 # Set the path to the data directory
 PATH = os.path.join('data')
@@ -37,18 +38,18 @@ for action, sequence in product(actions, range(sequences)):
     labels.append(label_map[action])
 
 # Convert landmarks and labels to numpy arrays
-X, Y = np.array(landmarks), to_categorical(labels).astype(int)
+X, Y = np.array(landmarks), tf.keras.utils.to_categorical(labels).astype(int)
 
 # Split the data into training and testing sets
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.10, random_state=34, stratify=Y)
 
 # Define the model architecture
-model = Sequential()
-model.add(LSTM(32, return_sequences=True, activation='relu', input_shape=(10,126)))
-model.add(LSTM(64, return_sequences=True, activation='relu'))
-model.add(LSTM(32, return_sequences=False, activation='relu'))
-model.add(Dense(32, activation='relu'))
-model.add(Dense(actions.shape[0], activation='softmax'))
+model = tf.keras.models.Sequential()
+model.add(tf.keras.layers.LSTM(32, return_sequences=True, activation='relu', input_shape=(10,126)))
+model.add(tf.keras.layers.LSTM(64, return_sequences=True, activation='relu'))
+model.add(tf.keras.layers.LSTM(32, return_sequences=False, activation='relu'))
+model.add(tf.keras.layers.Dense(32, activation='relu'))
+model.add(tf.keras.layers.Dense(actions.shape[0], activation='softmax'))
 
 # Compile the model with Adam optimizer and categorical cross-entropy loss
 model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
@@ -56,7 +57,7 @@ model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categ
 model.fit(X_train, Y_train, epochs=100)
 
 # Save the trained model
-model.save('my_model')
+model.save('my_model.keras')
 
 # Make predictions on the test set
 predictions = np.argmax(model.predict(X_test), axis=1)

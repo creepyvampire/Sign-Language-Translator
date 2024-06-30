@@ -8,7 +8,8 @@ import mediapipe as mp
 import cv2
 from my_functions import *
 import keyboard
-from tensorflow.keras.models import load_model
+import tensorflow as tf
+# from tensorflow.keras.models import load_model
 import language_tool_python
 
 # Set the path to the data directory
@@ -18,7 +19,7 @@ PATH = os.path.join('data')
 actions = np.array(os.listdir(PATH))
 
 # Load the trained model
-model = load_model('my_model')
+model = tf.keras.models.load_model('my_model.keras')
 
 # Create an instance of the grammar correction tool
 tool = language_tool_python.LanguageToolPublicAPI('en-UK')
@@ -40,8 +41,9 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.75, min_tracking_
         _, image = cap.read()
         # Process the image and obtain sign landmarks using image_process function from my_functions.py
         results = image_process(image, holistic)
+        writtable_image = np.copy(image)
         # Draw the sign landmarks on the image using draw_landmarks function from my_functions.py
-        draw_landmarks(image, results)
+        draw_landmarks(writtable_image, results)
         # Extract keypoints from the pose landmarks using keypoint_extraction function from my_functions.py
         keypoints.append(keypoint_extraction(results))
 
@@ -97,22 +99,22 @@ with mp.solutions.holistic.Holistic(min_detection_confidence=0.75, min_tracking_
         if grammar_result:
             # Calculate the size of the text to be displayed and the X coordinate for centering the text on the image
             textsize = cv2.getTextSize(grammar_result, cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-            text_X_coord = (image.shape[1] - textsize[0]) // 2
+            text_X_coord = (writtable_image.shape[1] - textsize[0]) // 2
 
             # Draw the sentence on the image
-            cv2.putText(image, grammar_result, (text_X_coord, 470),
+            cv2.putText(writtable_image, grammar_result, (text_X_coord, 470),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
         else:
             # Calculate the size of the text to be displayed and the X coordinate for centering the text on the image
             textsize = cv2.getTextSize(' '.join(sentence), cv2.FONT_HERSHEY_SIMPLEX, 1, 2)[0]
-            text_X_coord = (image.shape[1] - textsize[0]) // 2
+            text_X_coord = (writtable_image.shape[1] - textsize[0]) // 2
 
             # Draw the sentence on the image
-            cv2.putText(image, ' '.join(sentence), (text_X_coord, 470),
+            cv2.putText(writtable_image, ' '.join(sentence), (text_X_coord, 470),
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
 
         # Show the image on the display
-        cv2.imshow('Camera', image)
+        cv2.imshow('Camera', writtable_image)
 
         cv2.waitKey(1)
 
